@@ -11,14 +11,17 @@ export const boardDefault = [
   ["", "", "", "", ""], 
 ];
 
-export const generateWordset = async () => {
+export const generateWordSet = async () => {
 let wordSet;
+let todaysWord;
 await fetch(wordBank)
     .then((response) => response.text())
     .then((result) => {
-      const wordArr = result.split("\n");
+      const wordArr = result.split("\n").map(word => word.trim().replace(/\r$/, '').toLowerCase());
+      todaysWord = wordArr[Math.floor(Math.random() * wordArr.length)];
       wordSet = new Set(wordArr);
+
     });
 
-    return { wordSet };
+    return { wordSet, todaysWord };
 };
