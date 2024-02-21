@@ -17,6 +17,7 @@ function App() {
   const [gameOver, setGameOver] = useState({
     gameOver: false,
     guessedWord: false,
+    showModal: false
   });
 
   useEffect(() => {
@@ -44,27 +45,46 @@ function App() {
   };
 
   const onEnter = () => {
-    if (currAttempt.letter !== 5) return;
+    if (currAttempt.letter !== 5) return; // Ensure a full word has been entered
 
     let currWord = "";
     for (let i = 0; i < 5; i++) {
       currWord += board[currAttempt.attempt][i].toLowerCase();
     }
 
-    if (wordSet.has(currWord.toLowerCase())) {
-      setCurrAttempt({ attempt: currAttempt.attempt + 1, letter: 0 });
-    } else {
+    // Check if the word is in the list
+    if (!wordSet.has(currWord)) {
       alert("Word is not in the list. Try again.");
+      return; // Prevent advancing the attempt if the word is not in the list
     }
-    if (currWord === correctWord) {
-      setGameOver({ gameOver: true, guessedWord: true });
+
+    // Proceed if the word is correct
+    if (currWord === correctWord.toLowerCase()) {
+      setGameOver({ gameOver: true, guessedWord: true, showModal: false });
       return;
     }
 
+    // Check if it's the last attempt after verifying the word is in the list
     if (currAttempt.attempt === 5) {
       setGameOver({ gameOver: true, guessedWord: false });
+      return;
     }
+
+    // If the word is in the list but not correct, and it's not the last attempt, move to the next attempt
+    setCurrAttempt({ attempt: currAttempt.attempt + 1, letter: 0 });
   };
+
+  useEffect(() => {
+    if (gameOver.gameOver) {
+      // Use a brief timeout to wait for the UI to update
+      const timer = setTimeout(() => {
+        setGameOver(prev => ({ ...prev, showModal: true }));
+      }, 500); // Adjust delay as needed
+  
+      return () => clearTimeout(timer); // Cleanup timeout
+    }
+  }, [gameOver.gameOver]);
+  
 
   return (
     <div className="App">
@@ -89,7 +109,8 @@ function App() {
       >
         <div className="game">
           <Board />
-          {gameOver.gameOver ? <GameOver /> : <Keyboard />}
+          {gameOver.showModal && <GameOver />}
+  {!gameOver.gameOver && <Keyboard />}
         </div>
       </AppContext.Provider>
     </div>
