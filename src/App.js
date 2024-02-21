@@ -24,7 +24,7 @@ function App() {
     generateWordSet().then((words) => {
       setWordSet(words.wordSet);
       setCorrectWord(words.todaysWord);
-      // console.log(words.todaysWord); // Uncomment to see the correct word in the console
+      console.log(words.todaysWord); // Uncomment to see the correct word in the console
     });
   }, []);
 
