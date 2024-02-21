@@ -147,7 +147,7 @@ nav h1 {
   }
 }
 
-@media (max-width: 30em) {
+/* @media (max-width: 30em) {
   html {
     font-size: 0.875em;
   }
@@ -178,7 +178,7 @@ nav h1 {
   .keyboard {
     max-width: 18.75em;
   }
-}
+} */
 
 
 .gameOver-backdrop {

@@ -17,7 +17,7 @@ function App() {
   const [gameOver, setGameOver] = useState({
     gameOver: false,
     guessedWord: false,
-    showModal: false
+    showModal: false,
   });
 
   useEffect(() => {
@@ -28,10 +28,10 @@ function App() {
     });
   }, []);
 
-  const onSelectLetter = (keyVal) => {
+  const onSelectLetter = (key) => {
     if (currAttempt.letter > 4) return;
     const newBoard = [...board];
-    newBoard[currAttempt.attempt][currAttempt.letter] = keyVal;
+    newBoard[currAttempt.attempt][currAttempt.letter] = key;
     setBoard(newBoard);
     setCurrAttempt({ ...currAttempt, letter: currAttempt.letter + 1 });
   };
@@ -78,13 +78,12 @@ function App() {
     if (gameOver.gameOver) {
       // Use a brief timeout to wait for the UI to update
       const timer = setTimeout(() => {
-        setGameOver(prev => ({ ...prev, showModal: true }));
+        setGameOver((prev) => ({ ...prev, showModal: true }));
       }, 500); // Adjust delay as needed
-  
+
       return () => clearTimeout(timer); // Cleanup timeout
     }
   }, [gameOver.gameOver]);
-  
 
   return (
     <div className="App">
@@ -110,7 +109,7 @@ function App() {
         <div className="game">
           <Board />
           {gameOver.showModal && <GameOver />}
-  {!gameOver.gameOver && <Keyboard />}
+          {!gameOver.gameOver && <Keyboard />}
         </div>
       </AppContext.Provider>
     </div>

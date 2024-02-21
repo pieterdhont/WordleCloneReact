@@ -1,48 +1,33 @@
-//Letters.js
-
 import React, { useContext, useEffect } from "react";
 import { AppContext } from "../App";
-
 
 function Letter({ letterPos, attemptVal }) {
   const { board, correctWord, currAttempt, setDisabledLetters, gameOver } = useContext(AppContext);
   const letter = board[attemptVal][letterPos];
   const upperCorrectWord = correctWord.toUpperCase();
 
-  // Calculate letter states based on the entire attempt
-  const calculateLetterStates = () => {
-    const result = { correct: false, almost: false, error: true };
-    if (letter === "") return result; // Ignore empty
+  // Check if the letter matches exactly (correct position)
+  const correct = upperCorrectWord[letterPos] === letter;
 
-    // Check if the letter matches exactly (correct position)
-    result.correct = upperCorrectWord[letterPos] === letter;
-    if (result.correct) {
-      result.error = false;
-      return result;
-    }
+  // Check if the letter is present in the correct word but in the wrong position
+  const almost = !correct && letter !== "" && upperCorrectWord.includes(letter);
 
-    // Check for 'almost' considering the count of the letter in both guessed and correct word
-    const correctLetterCount = upperCorrectWord.split(letter).length - 1;
-    const guessedLetterCountBeforeCurrent = board[attemptVal].slice(0, letterPos).filter(l => l === letter).length;
-    const correctLetterCountBeforeCurrent = upperCorrectWord.slice(0, letterPos).split(letter).length - 1;
+  // Enhanced logic for 'almost' to consider the letter frequency in the correct word vs. the guess
+  const correctLetterFrequency = upperCorrectWord.split('').filter(l => l === letter).length;
+  const guessLetterFrequency = board[attemptVal].slice(0, letterPos + 1).filter(l => l === letter).length;
+  const newAlmost = almost && guessLetterFrequency <= correctLetterFrequency;
 
-    result.almost = upperCorrectWord.includes(letter) && 
-                    (guessedLetterCountBeforeCurrent < correctLetterCount || 
-                     correctLetterCountBeforeCurrent < correctLetterCount);
-    result.error = !result.almost;
-
-    return result;
-  };
-
-  const { correct, almost, error } = calculateLetterStates();
+  // Determine the letter's state for styling with id
   const letterState = (currAttempt.attempt > attemptVal || (gameOver.gameOver && currAttempt.attempt === attemptVal)) &&
-                      (correct ? "correct" : almost ? "almost" : "error");
+                      (correct ? "correct" : newAlmost ? "almost" : "error");
 
   useEffect(() => {
-    if (!correct && !almost) {
-      setDisabledLetters(prev => [...prev, letter]);
+    // Logic to add letter to disabledLetters if the attempt is over, and the letter is not correct or 'almost'
+    // Only update disabledLetters after a full attempt is made (i.e., onEnter has been triggered)
+    if (currAttempt.attempt > attemptVal && !correct && !upperCorrectWord.includes(letter)) {
+      setDisabledLetters(prev => [...new Set([...prev, letter])]);
     }
-  }, [currAttempt.attempt, letter, correct, almost]);
+  }, [currAttempt.attempt, correct, almost, letter, upperCorrectWord, setDisabledLetters]);
 
   return (
     <div className="letter" id={letterState}>
